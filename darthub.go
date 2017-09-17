@@ -43,6 +43,7 @@ func main() {
 		User: userName,
 		Filename: "pubspec",
 		Extension: "yaml",
+		PerPage: RESULTS_PER_PAGE,
 	})
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)

@@ -23,7 +23,7 @@ func (g *GithubSearcher) search(params *SearchParams, ctx context.Context, resul
 	opts := &github.SearchOptions{
 		ListOptions: github.ListOptions{
 			Page: params.Page,
-			PerPage: RESULTS_PER_PAGE,
+			PerPage: params.PerPage,
 		},
 	}
 
