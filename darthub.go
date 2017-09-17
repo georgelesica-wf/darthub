@@ -6,54 +6,8 @@ import (
 	"golang.org/x/oauth2"
 	"os"
 	"flag"
-	"time"
+	"fmt"
 )
-
-const RESULTS_PER_PAGE = 100
-
-var repoURLs []string = make([]string, 0)
-
-func contains(haystack []string, needle string) bool {
-	for _, candidate := range haystack {
-		if needle == candidate {
-			return true
-		}
-	}
-	return false
-}
-
-func fetchResults(client *github.Client, ctx context.Context, userName string, page int) {
-	opts := &github.SearchOptions{ListOptions: github.ListOptions{Page: page, PerPage: RESULTS_PER_PAGE}}
-
-	// list all repositories for the authenticated userName
-	result, _, err := client.Search.Code(ctx, "user:" +userName+ " filename:pubspec extension:yaml", opts)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, item := range result.CodeResults {
-		repoURL := item.Repository.GetHTMLURL()
-
-		if contains(repoURLs, repoURL) {
-			continue
-		}
-
-		repoURLs = append(repoURLs, repoURL)
-		println(repoURL)
-	}
-
-	// We are finished when we get back fewer than the max results.
-	if len(result.CodeResults) < RESULTS_PER_PAGE {
-		return
-	}
-
-	// This rate limit is very conservative, it abides by the current
-	// unauthenticated limit imposed by GitHub (10 requests per minute).
-	// In theory, we could lower this to 2 since we authenticate.
-	time.Sleep(6 * time.Second)
-
-	fetchResults(client, ctx, userName, page + 1)
-}
 
 func usage() {
 	println("darthub <user>")
@@ -83,5 +37,19 @@ func main() {
 
 	client := github.NewClient(tc)
 
-	fetchResults(client, ctx, userName,1)
+	searcher := GithubSearcher{client: client}
+
+	results, err := searcher.Search(SearchParams{
+		User: userName,
+		Filename: "pubspec",
+		Extension: "yaml",
+	})
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
+	}
+
+	for _, result := range results {
+		println(result.URL)
+	}
 }
