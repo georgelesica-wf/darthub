@@ -13,5 +13,5 @@ type SearchResult struct {
 }
 
 type Searcher interface {
-	Search(params *SearchParams) ([]SearchResult, error) // TODO: Pointers!
+	Search(params *SearchParams) ([]SearchResult, error)
 }
