@@ -59,7 +59,6 @@ func main() {
 	if fileFlag != "" {
 		for _, result := range results {
 		cutRepoURL := strings.Split(result.URL, "github.com/")[1]
-		println(cutRepoURL)
 		cutRepoURLs = append(cutRepoURLs, cutRepoURL)
 	}
 
