@@ -2,14 +2,15 @@ package main
 
 type SearchParams struct {
 	Extension string
-	Filename string
-	Page int
-	PerPage int
-	User string
+	Filename  string
+	Page      int
+	PerPage   int
+	User      string
 }
 
 type SearchResult struct {
-	URL string
+	URL        string
+	TrimmedURL string
 }
 
 type Searcher interface {

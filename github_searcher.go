@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/google/go-github/github"
-	"time"
 	"context"
 	"fmt"
+	"github.com/google/go-github/github"
+	"strings"
+	"time"
 )
 
 const RESULTS_PER_PAGE = 100
@@ -22,7 +23,7 @@ func (g *GithubSearcher) Search(params SearchParams) ([]SearchResult, error) {
 func (g *GithubSearcher) search(params *SearchParams, ctx context.Context, results []SearchResult) ([]SearchResult, error) {
 	opts := &github.SearchOptions{
 		ListOptions: github.ListOptions{
-			Page: params.Page,
+			Page:    params.Page,
 			PerPage: params.PerPage,
 		},
 	}
@@ -42,7 +43,12 @@ func (g *GithubSearcher) search(params *SearchParams, ctx context.Context, resul
 			continue
 		}
 
-		results = append(results, SearchResult{URL: repoURL})
+		trimmedURL := strings.Split(repoURL, "github.com/")[1]
+
+		results = append(results, SearchResult{
+			URL:        repoURL,
+			TrimmedURL: trimmedURL,
+		})
 	}
 
 	// We are finished when we get back fewer than the max results.

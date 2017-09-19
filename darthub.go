@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -19,9 +17,12 @@ func usage() {
 }
 
 func main() {
+	pythonOutput := flag.Bool("python", false, "Output formatted as a Python list")
+	trimURL := flag.Bool("trim", false, "Trim the repo host name from the output")
+
 	flag.Parse()
+
 	userName := flag.Arg(0)
-	fileFlag := flag.Arg(1)
 
 	if userName == "" {
 		usage()
@@ -56,23 +57,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	if fileFlag != "" {
-		for _, result := range results {
-		cutRepoURL := strings.Split(result.URL, "github.com/")[1]
-		cutRepoURLs = append(cutRepoURLs, cutRepoURL)
-	}
-
-		file, err := os.Create("dart_medic_repo_list.py")
-		if err == nil {
-			data := json.NewEncoder(file)
-			data.SetIndent("", "  ")
-			err = data.Encode(cutRepoURLs)
-		} else {
-			fmt.Printf("Error: %s\n", err)
-		}
+	if *pythonOutput {
+		println("[")
 	}
 
 	for _, result := range results {
-		println(result.URL)
+		if *pythonOutput {
+			print("  \"")
+		}
+
+		if *trimURL {
+			print(result.TrimmedURL)
+		} else {
+			print(result.URL)
+		}
+
+		if *pythonOutput {
+			print("\",")
+		}
+
+		println()
+	}
+
+	if *pythonOutput {
+		println("]")
 	}
 }
