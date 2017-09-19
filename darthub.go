@@ -13,10 +13,11 @@ import (
 var cutRepoURLs []string = make([]string, 0)
 
 func usage() {
-	println("darthub <user> <write_file>")
+	fmt.Println("darthub <user> <write_file>")
 }
 
 func main() {
+	jsonOutput := flag.Bool("json", false, "Output formatted as a JSON list")
 	pythonOutput := flag.Bool("python", false, "Output formatted as a Python list")
 	trimURL := flag.Bool("trim", false, "Trim the repo host name from the output")
 
@@ -26,13 +27,13 @@ func main() {
 
 	if userName == "" {
 		usage()
-		println("User name parameter is required")
+		fmt.Println("User name parameter is required")
 		return
 	}
 
 	token, present := os.LookupEnv("DARTHUB_TOKEN")
 	if !present {
-		println("DARTHUB_TOKEN is not set")
+		fmt.Println("DARTHUB_TOKEN is not set")
 		return
 	}
 
@@ -57,29 +58,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *pythonOutput {
-		println("[")
+	if *jsonOutput || *pythonOutput {
+		fmt.Println("[")
 	}
 
-	for _, result := range results {
-		if *pythonOutput {
-			print("  \"")
+	for i, result := range results {
+		if *jsonOutput || *pythonOutput {
+			fmt.Print("  \"")
 		}
 
 		if *trimURL {
-			print(result.TrimmedURL)
+			fmt.Print(result.TrimmedURL)
 		} else {
-			print(result.URL)
+			fmt.Print(result.URL)
 		}
 
-		if *pythonOutput {
-			print("\",")
+		isLast := i == len(results) - 1
+		if (*jsonOutput && !isLast) || *pythonOutput {
+			fmt.Print("\",")
 		}
 
-		println()
+		fmt.Println()
 	}
 
-	if *pythonOutput {
-		println("]")
+	if *jsonOutput || *pythonOutput {
+		fmt.Println("]")
 	}
 }
